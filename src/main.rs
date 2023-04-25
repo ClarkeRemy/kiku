@@ -1,10 +1,6 @@
-extern crate alloc;
+#![no_implicit_prelude]
 
-mod includes {
-// for lsp support
-#[path ="memory.rs"] mod memory; 
-}
-core::include!{"includes/memory.rs"}
+mod memory; 
 
 
 fn main() {}
