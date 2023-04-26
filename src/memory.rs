@@ -1,5 +1,6 @@
 // #![allow(unused)]
 extern crate alloc;
+extern crate core;
 
 type Word     = usize;     // a machine word
 type TypeHash = u128;
@@ -7,7 +8,6 @@ type Byte     = u8;
 
 type ByteSlice   = ReadOnly<[Byte]>;
 type ReadOnly<T> = alloc::sync::Arc<T>;
-
 
 struct Allocation
 { align : Word
@@ -24,7 +24,7 @@ struct ArrayMemDesc
 // a typeless memory description for tuples, structs, and records
 struct MemDesc
 { alloc       : Allocation
-, byte_offsets : ReadOnly<[Word]> // number of fields is implicit
+, byte_offsets : ReadOnly<[Word]>  // number of fields is implicit
                                   // the offsets must always be increasing
                                   // if the type is a ZST, the slice has len 0
 }
@@ -57,20 +57,36 @@ struct FnPointer
 }
 
 /// Concrete Types are a tree
-enum Type 
-{ Type
+enum Type
+{ Type // maybe generic args instead
 , Byte
 , Word
+, Unit
 , SELF  // this is only be found in propery signatures, used to avoid reference cycles
 , Array     (ReadOnly<Array>)
-, TypedMem  (ReadOnly<TypedMem>)
-, TypeTag   (TypeHash)
-, Unique    (ReadOnly<Unique>) // {_.align = Max _.type.align _.align ; }
+, TypedMem  (ReadOnly<TypedMem>)  // {_.align = fold max (Bytes 0) _.val_type}
+, TypeTag   (TypeHash)            // {_.align = 16 ; size = Bytes 8}
+, Unique    (ReadOnly<Unique>)    // {_.align = _.type.align ; _.size = _type.size} (by default unless overridden)
 , FnPointer (ReadOnly<FnPointer>) // {_.align = Word.align ; _.size = Bytes 8}
 }
 
 /*
+typedef struct Slice {*T pointer; size_t len}
+
 
   Record : Array TypedMem [ ]
-  Module : (TypedMem,
+
+  IndexModule
+  NominalModule : (TypedMem,
+
+
+int foo(bool x)
+
+
+foo (vec int) 5 f
+
+int -> int -> int -> bool
+
+Closure_int_bool {}
+
  */

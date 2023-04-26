@@ -199,3 +199,23 @@ trait TypeChecker {
   fn check(&mut self, ast: Self::Ast) -> Result<Self::Tir, TypeError>
 }
 ```
+
+
+## Mutation
+mutation is done primarily via ownership and immediate reassignment
+
+a rust example
+```rust
+#[derive(Debug)] struct W (i32); // wrapped to avoid copying
+#[derive(Debug)] struct Wrappers {one : W, _two : W}
+
+fn foo (W(x): W) -> (W, i32) { (W(x+5), 7) }
+fn main() 
+{ let mut w =  Wrappers { one: W(5), _two : W(6)}
+; let _l
+; (w.one, _l) = foo(w.one)
+; std::println!("{:?}",w)
+}
+```
+
+This may be a little more complex to figure out if we consider types like mutexes.
