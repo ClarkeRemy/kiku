@@ -9,34 +9,19 @@ type Byte     = u8;
 type ByteSlice   = ReadOnly<[Byte]>;
 type ReadOnly<T> = alloc::sync::Arc<T>;
 
-struct Allocation
-{ align : Word
-, size  : Word
+
+struct Field 
+{ offset: Word
+, val_type : Type
 }
-
-
-struct ArrayMemDesc
-{ alloc  : Allocation
-, len    : Word
-, stride : Word
-}
-
-// a typeless memory description for tuples, structs, and records
-struct MemDesc
-{ alloc       : Allocation
-, byte_offsets : ReadOnly<[Word]>  // number of fields is implicit
-                                  // the offsets must always be increasing
-                                  // if the type is a ZST, the slice has len 0
-}
-
 struct TypedMem
-{ val_type : ReadOnly<[Type]> // Sorted in MemDesc memory order
-, access   : MemDesc
-}
+{ type_byte_offsets : ReadOnly<[Field]> }
+
 
 struct Array
-{ val_type : Type
-, access   : ArrayMemDesc
+{ /// the stride is computed by the `val_type`'s alignment and size
+  val_type : ReadOnly<Type>
+, len      : Word
 }
 
 enum Property
@@ -47,13 +32,13 @@ enum Property
 
 struct Unique
 { hash     : TypeHash
-, val_type : Type
+, val_type : ReadOnly<Type>
 , props    : ReadOnly<[Property]>
 }
 
 struct FnPointer
-{ arg : Type
-, out : Type
+{ arg : ReadOnly<Type>
+, out : ReadOnly<Type>
 }
 
 /// Concrete Types are a tree
@@ -63,11 +48,11 @@ enum Type
 , Word
 , Unit
 , SELF  // this is only be found in propery signatures, used to avoid reference cycles
-, Array     (ReadOnly<Array>)
-, TypedMem  (ReadOnly<TypedMem>)  // {_.align = fold max (Bytes 0) _.val_type}
-, TypeTag   (TypeHash)            // {_.align = 16 ; size = Bytes 8}
-, Unique    (ReadOnly<Unique>)    // {_.align = _.type.align ; _.size = _type.size} (by default unless overridden)
-, FnPointer (ReadOnly<FnPointer>) // {_.align = Word.align ; _.size = Bytes 8}
+, Array     (Array)
+, TypedMem  (TypedMem)
+, TypeTag   (TypeHash)
+, Unique    (Unique)
+, FnPointer (FnPointer)
 }
 
 /*

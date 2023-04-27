@@ -210,12 +210,37 @@ a rust example
 #[derive(Debug)] struct Wrappers {one : W, _two : W}
 
 fn foo (W(x): W) -> (W, i32) { (W(x+5), 7) }
+
 fn main() 
 { let mut w =  Wrappers { one: W(5), _two : W(6)}
 ; let _l
 ; (w.one, _l) = foo(w.one)
+
 ; std::println!("{:?}",w)
 }
 ```
+in the language
+
+Uniques have a property list that can be appended/overridden by the person defining the type 
+(not true of other types)
+```
+... // imaginary debug implementation
+
+
+W : unique s32
+.[foo] : W -> Tupple [W, s32] 
+(W x).[foo] = [W (x + 5) ; 7]
+
+Wrappers = unique (record [W one ; W _two])
+
+main : EntryPoint -> ()
+main = \
+( w <- Wrappers [.one <- W 5 ; ._two <- W 6] 
+  [w.one ; l] <- w.one.[foo]
+  print w.[dbg] ;; printChar '\n'
+)
+
+```
 
 This may be a little more complex to figure out if we consider types like mutexes.
+
