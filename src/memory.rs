@@ -54,24 +54,3 @@ enum Type
 , Unique    (Unique)
 , FnPointer (FnPointer)
 }
-
-/*
-typedef struct Slice {*T pointer; size_t len}
-
-
-  Record : Array TypedMem [ ]
-
-  IndexModule
-  NominalModule : (TypedMem,
-
-
-int foo(bool x)
-
-
-foo (vec int) 5 f
-
-int -> int -> int -> bool
-
-Closure_int_bool {}
-
- */
