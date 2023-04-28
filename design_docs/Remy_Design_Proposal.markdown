@@ -216,7 +216,7 @@ fn main()
 ; let _l
 ; (w.one, _l) = foo(w.one)
 
-; std::println!("{:?}",w)
+; std::println!("{w:?}")
 }
 ```
 in the language
@@ -228,19 +228,24 @@ Uniques have a property list that can be appended/overridden by the person defin
 
 
 W : unique s32
-.[foo] : W -> Tupple [W, s32] 
-(W x).[foo] = [W (x + 5) ; 7]
+foo : W -> Tupple [W ; s32]
+foo (W x) = [W (x 5) ; 7]
 
 Wrappers = unique (record [W one ; W _two])
 
 main : EntryPoint -> ()
-main = \
-( w <- Wrappers [.one <- W 5 ; ._two <- W 6] 
-  [w.one ; l] <- w.one.[foo]
-  print w.[dbg] ;; printChar '\n'
+main = ;
+( w            <- Wrappers [.one <- W 5 ; ._two <- W 6] 
+  [w.one ; _l] <- w.one.[foo]
+  print [w.[dbg] ; '\n']
 )
 
 ```
 
-This may be a little more complex to figure out if we consider types like mutexes.
+After much thought, it might be difficult to get away without mutable references.
+Without them, it makes it very difficult to make objects like mutexes safely.
+In Rust the &mut in MutexGuard is used to change the Mutex.inner on use,
+and change the count on drop.
+Drop also takes the object by &mut so that the destructor is not recursive.
+
 

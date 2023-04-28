@@ -25,9 +25,10 @@ struct Array
 }
 
 enum Property
-{ Request (Type) // &self -> Type
-, Into    (Type) // self  -> Type
-, Innate  (Type) // ()    -> Type
+{ Request (Type) // &self     -> Type
+, Update  (Type) // &mut self -> Type
+, Into    (Type) // self      -> Type
+, Innate  (Type) // ()        -> Type
 }
 
 struct Unique
