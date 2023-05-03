@@ -1,79 +1,78 @@
-// #![allow(unused)]
+#![allow(unused)]
 extern crate alloc;
 extern crate core;
-
 use crate::bootstrap_cia::{Word, Byte};
 
-type TypeHash = u128; 
+pub(crate) type TypeHash = u128; 
 
 
-type ByteSlice   = ReadOnly<[Byte]>;
-type ReadOnly<T> = alloc::sync::Arc<T>;
+pub(crate) type ByteSlice   = ReadOnly<[Byte]>;
+pub(crate) type ReadOnly<T> = alloc::sync::Arc<T>;
 
 
-struct Field 
-{ offset: Word
-, val_type : Type
+pub(crate) struct Field 
+{ pub(crate) offset: Word
+, pub(crate) val_type : Type
 }
-struct TypedMem
-{ type_byte_offsets : ReadOnly<[Field]> }
+pub(crate) struct TypedMem
+{ pub(crate) type_byte_offsets : ReadOnly<[Field]> }
 
 
-struct Array
+pub(crate) struct Array
 { /// the stride is computed by the `val_type`'s alignment and size
-  val_type : ReadOnly<Type>
-, len      : Word
+  pub(crate) val_type : ReadOnly<Type>
+, pub(crate) len      : Word
 }
 
-enum Property
+pub(crate) enum Property
 { Request (Type) // &self     -> Type
 , Update  (Type) // &mut self -> Type
 , Into    (Type) // self      -> Type
 , Innate  (Type) // ()        -> Type
 }
 
-struct Unique
-{ hash     : TypeHash  // salt instead?
-, val_type : ReadOnly<Type>
-, props    : ReadOnly<[Property]>
+pub(crate) struct Unique
+{ pub(crate) module_path : ReadOnly<[Symbol]> // the last symbol is the name
+, pub(crate) val_type    : ReadOnly<Type>
+, pub(crate) props       : ReadOnly<[Property]>
 }
 
-struct CallConvention
-{ // mapping :  Lang_InOut -> MapArch_InOut
-}
+pub(crate) struct CallConvention { /* mapping :  Lang_InOut -> MapArch_InOut */ }
+pub(crate) struct RewriteRules { /* substitutions : ReadOnly<[ Ast -> Ast ]>  */ }// things like commutativity|associativity ... 
 
-enum FnTags 
-{ CallConvention
+pub(crate) enum FnTags
+{ CallConvention (CallConvention)
+, RewriteRules   (RewriteRules)
 }
 
 /// can decay into a function pointer
-struct FnStateless // can 
-{ arg : ReadOnly<Type>
-, out : ReadOnly<Type>
-, 
-// call convention
-// safety
-// 
+pub(crate) struct FnStateFree
+{ pub(crate) arg  : ReadOnly<Type>
+, pub(crate) out  : ReadOnly<Type>
+
+// should this really be here? maybe this should be left to Unique?
+// , pub(crate) tags : ReadOnly<[FnTags]> // 
 }
 
-struct TypeUnion (ReadOnly<[Type]>);
+pub(crate) struct TypeUnion (pub(crate) ReadOnly<[Type]>);
+pub(crate) struct Symbol(pub(crate) ByteSlice);
 
 /// Concrete Types are a tree
-enum Type
+pub(crate) enum Type
 { Type                  // maybe generic args instead
-, Symbol    (ByteSlice) // Expecting Utf-8?
 
 , Byte
 , Word
-, Unit
+, Unit  // guaranteed to be ZST
 
-, SelfT // this is only be found in propery signatures, used to avoid reference cycles
+, SelfT // used to avoid reference cycles
 
+, Symbol      (Symbol)
 , Array       (Array)
 , TypedMem    (TypedMem)
 , TypeTag     (TypeHash)
 , Unique      (Unique)
-, FnStateless (FnStateless)
+, FnStateFree (FnStateFree)
 
 , TypeUnion   (TypeUnion)
 }
@@ -92,14 +91,7 @@ enum Type
 
   Record with numeric Fields from 0..=n => Tuple
 
-
-  Function
-
-
-  k =
-  | s32 
-  | i32
-
+  ...
 
 */
 
