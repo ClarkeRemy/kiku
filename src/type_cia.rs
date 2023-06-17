@@ -77,6 +77,9 @@ pub(crate) enum Type
 , TypeUnion   (TypeUnion)
 }
 
+
+
+
 /*
   Internal of Record and Struct
   Record and Struct
@@ -85,7 +88,7 @@ pub(crate) enum Type
        [ 
          Field { offset : 0 , val_type : Slice<Symbol> } 
        , Field { offset : _ , val_type : TypedMem { type_byte_offsets : [ ..... ] }
-      ]
+       ]
     }
   internaly uses 2D indexing to get pairs of names and types
 
@@ -94,4 +97,5 @@ pub(crate) enum Type
   ...
 
 */
+
 
